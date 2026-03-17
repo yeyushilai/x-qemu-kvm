@@ -1,0 +1,239 @@
+# x-qemu-kvm CLI 配置文件示例
+# 位置: ~/.vmctl/config.yaml
+
+# 连接配置
+connection:
+  # libvirt 连接 URI
+  # - qemu:///system: 系统级连接（需要 root 权限）
+  # - qemu:///session: 用户级连接
+  # - qemu+ssh://user@host/system: SSH 远程连接
+  uri: "qemu:///system"
+
+  # 连接超时（秒）
+  timeout: 10
+
+  # 是否只读连接
+  read_only: false
+
+# 虚拟机默认配置
+vm_defaults:
+  # 内存大小 (MB)
+  memory: 2048
+
+  # 虚拟 CPU 数量
+  vcpu: 2
+
+  # 磁盘格式
+  disk_format: "qcow2"
+
+  # 磁盘大小 (MB)，如果为 null 则使用现有大小
+  disk_size: null
+
+  # 默认网络
+  network: "default"
+
+  # 是否启用图形显示
+  graphics: false
+
+  # 图形显示端口，null 表示自动分配
+  graphics_port: null
+
+  # 虚拟机描述模板
+  description_template: "创建于 {timestamp}"
+
+# 存储配置
+storage:
+  # 默认存储池
+  default_pool: "default"
+
+  # 默认存储卷格式
+  default_volume_format: "qcow2"
+
+  # 默认磁盘路径模板
+  disk_path_template: "/var/lib/libvirt/images/{name}.qcow2"
+
+  # 默认 ISO 路径
+  iso_path: "/var/lib/libvirt/isos"
+
+# 网络配置
+network:
+  # 默认网络类型
+  default_type: "network"  # network, bridge, macvtap
+
+  # 默认网络模型
+  default_model: "virtio"
+
+  # 默认 MAC 地址前缀
+  mac_prefix: "52:54:00"
+
+# 日志配置
+logging:
+  # 日志级别: DEBUG, INFO, WARNING, ERROR
+  level: "INFO"
+
+  # 日志文件路径，null 表示不写入文件
+  file: "~/.vmctl/vmctl.log"
+
+  # 日志格式
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+  # 是否在控制台显示日志
+  console: true
+
+# CLI 配置
+cli:
+  # 默认输出格式: table, json, yaml
+  default_output: "table"
+
+  # 是否启用颜色
+  colors: true
+
+  # 是否显示进度条
+  progress: true
+
+  # 交互式模式默认确认
+  confirm_by_default: true
+
+  # 表格显示设置
+  table:
+    # 最大列宽
+    max_width: 120
+
+    # 是否换行
+    wrap: false
+
+# 性能配置
+performance:
+  # 最大并发操作数
+  max_concurrent: 5
+
+  # 操作重试次数
+  retry_attempts: 3
+
+  # 重试延迟（秒）
+  retry_delay: 1
+
+# 监控配置
+monitoring:
+  # 统计信息收集间隔（秒）
+  stats_interval: 5
+
+  # 是否启用实时监控
+  live_monitoring: false
+
+  # 历史数据保留天数
+  history_days: 7
+
+# 插件配置
+plugins:
+  # 插件目录
+  directory: "~/.vmctl/plugins"
+
+  # 启用插件列表
+  enabled:
+    - "monitoring"
+    - "backup"
+    - "snapshot"
+
+# 安全配置
+security:
+  # 是否验证 SSL 证书
+  verify_ssl: true
+
+  # 允许的操作列表
+  allowed_operations:
+    - "list"
+    - "info"
+    - "create"
+    - "start"
+    - "stop"
+    - "restart"
+    - "pause"
+    - "resume"
+    - "delete"
+
+  # 需要确认的操作
+  confirm_operations:
+    - "delete"
+    - "force_stop"
+    - "snapshot_delete"
+
+  # 禁止的操作
+  forbidden_operations: []
+
+# 别名配置（命令缩写）
+aliases:
+  ls: "vm list"
+  ps: "vm list --state running"
+  start: "vm start"
+  stop: "vm stop"
+  restart: "vm restart"
+  rm: "vm delete"
+
+# 主题配置（Rich 输出主题）
+theme:
+  # 状态颜色映射
+  status_colors:
+    running: "green"
+    stopped: "red"
+    paused: "yellow"
+    shutdown: "orange"
+    crashed: "magenta"
+    pmsuspended: "blue"
+    nostate: "white"
+
+  # 表格样式
+  table:
+    header: "bold magenta"
+    border: "cyan"
+    row: "white"
+    highlight: "yellow"
+
+  # 面板样式
+  panel:
+    success: "green"
+    error: "red"
+    warning: "yellow"
+    info: "cyan"
+
+# 环境特定配置（可以根据环境覆盖上述配置）
+environments:
+  # 开发环境配置
+  development:
+    connection:
+      uri: "qemu:///session"
+    logging:
+      level: "DEBUG"
+    cli:
+      confirm_by_default: false
+
+  # 测试环境配置
+  testing:
+    connection:
+      uri: "qemu:///system"
+    vm_defaults:
+      memory: 1024
+      vcpu: 1
+    security:
+      forbidden_operations:
+        - "delete"
+        - "force_stop"
+
+  # 生产环境配置
+  production:
+    connection:
+      uri: "qemu:///system"
+    logging:
+      level: "WARNING"
+      file: "/var/log/vmctl.log"
+    security:
+      confirm_by_default: true
+      confirm_operations:
+        - "delete"
+        - "force_stop"
+        - "start"
+        - "stop"
+        - "restart"
+
+# 当前激活的环境
+current_environment: "development"

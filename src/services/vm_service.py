@@ -618,6 +618,27 @@ class VMService:
         # 由于时间关系，这里返回一个简单的模板
         # 实际项目中应该实现完整的 XML 生成器
 
+        # 构建 XML 各部分
+        # CD-ROM 部分
+        cdrom_section = ""
+        if vm_data.iso_path:
+            cdrom_section = f"""    <disk type='file' device='cdrom'>
+      <driver name='qemu' type='raw'/>
+      <source file='{vm_data.iso_path}'/>
+      <target dev='sda' bus='sata'/>
+      <readonly/>
+    </disk>"""
+
+        # 图形显示部分
+        graphics_section = ""
+        if vm_data.graphics:
+            graphics_section = "    <graphics type='vnc' port='-1' autoport='yes' listen='0.0.0.0'/>"
+
+        # CD-ROM 启动部分
+        cdrom_boot = ""
+        if vm_data.iso_path:
+            cdrom_boot = "    <boot dev='cdrom'/>"
+
         xml_template = f"""<domain type='kvm'>
   <name>{vm_data.name}</name>
   <memory unit='MiB'>{vm_data.memory}</memory>
@@ -625,7 +646,7 @@ class VMService:
   <os>
     <type arch='x86_64' machine='pc-q35-7.2'>hvm</type>
     <boot dev='hd'/>
-    {"<boot dev='cdrom'/>" if vm_data.iso_path else ""}
+{cdrom_boot}
   </os>
   <devices>
     <disk type='file' device='disk'>
@@ -633,17 +654,12 @@ class VMService:
       <source file='{vm_data.disk_path}'/>
       <target dev='vda' bus='virtio'/>
     </disk>
-    {"<disk type='file' device='cdrom'>" + f"""
-      <driver name='qemu' type='raw'/>
-      <source file='{vm_data.iso_path}'/>
-      <target dev='sda' bus='sata'/>
-      <readonly/>
-    </disk>""" if vm_data.iso_path else ""}
+{cdrom_section}
     <interface type='network'>
       <source network='{vm_data.network}'/>
       <model type='virtio'/>
     </interface>
-    {"<graphics type='vnc' port='-1' autoport='yes' listen='0.0.0.0'/>" if vm_data.graphics else ""}
+{graphics_section}
     <video>
       <model type='virtio'/>
     </video>

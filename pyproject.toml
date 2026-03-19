@@ -1,7 +1,7 @@
 [project]
-name = "x-qemu-kvm"
+name = "tiangong"
 version = "0.1.0"
-description = "Qemu/KVM 虚拟机生命周期管理工具"
+description = "天工 (TianGong) - 基于 Qemu/KVM 的虚拟机生命周期管理工具"
 readme = "README.md"
 authors = [
     {name = "John Young", email = "john.young@foxmai.com"}
@@ -30,9 +30,9 @@ dependencies = [
 vmctl = "src.cli.main:app"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/x-qemu-kvm"
-Repository = "https://github.com/yourusername/x-qemu-kvm.git"
-Issues = "https://github.com/yourusername/x-qemu-kvm/issues"
+Homepage = "https://github.com/yourusername/tiangong"
+Repository = "https://github.com/yourusername/tiangong.git"
+Issues = "https://github.com/yourusername/tiangong/issues"
 
 [build-system]
 requires = ["hatchling"]

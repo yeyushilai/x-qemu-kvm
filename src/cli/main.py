@@ -67,7 +67,7 @@ def main(
     ),
 ):
     """
-    x-qemu-kvm 虚拟机管理命令行工具
+    天工 (TianGong) 虚拟机管理命令行工具
 
     提供完整的虚拟机生命周期管理功能，包括：
     - 创建、删除虚拟机
@@ -107,12 +107,12 @@ def version():
     from importlib.metadata import version, PackageNotFoundError
 
     try:
-        package_version = version("x-qemu-kvm")
+        package_version = version("tiangong")
     except PackageNotFoundError:
         package_version = "0.1.0 (开发版)"
 
     rprint(Panel.fit(
-        f"[bold cyan]x-qemu-kvm[/bold cyan] v{package_version}\n"
+        f"[bold cyan]天工 (TianGong)[/bold cyan] v{package_version}\n"
         f"[dim]虚拟机生命周期管理工具[/dim]\n"
         f"[dim]作者: 杨壮 (John Young) <john.young@foxmai.com>[/dim]",
         title="版本信息",
@@ -181,7 +181,7 @@ def open_docs():
     """打开项目文档"""
     import webbrowser
 
-    docs_url = "https://github.com/yourusername/x-qemu-kvm"
+    docs_url = "https://github.com/yourusername/tiangong"
     console.print(f"[cyan]正在打开文档: {docs_url}[/cyan]")
     try:
         webbrowser.open(docs_url)

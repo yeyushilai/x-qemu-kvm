@@ -1,211 +1,172 @@
-# x-qemu-kvm
+# 天工 (TianGong)
 
-`x-qemu-kvm` 是一个基于 Qemu/KVM 的虚拟机生命周期管理学习与实践项目
+> 《天工开物》—— 中国古代科技巨著
 
-**作者**: 杨壮 (John Young) <john.young@foxmai.com>
-**许可证**: MIT
-**版本**: 0.1.0
+`天工 (TianGong)` 是一个基于 Qemu/KVM 的虚拟机生命周期管理工具，提供 **CLI** 和 **REST API** 两种使用方式。
 
 ---
 
-## 🎯 项目概述
-
-这是一个用于学习和实践 **虚拟机生命周期管理** 的开源项目。项目提供：
-- **REST API** (FastAPI) - 用于自动化集成
-- **CLI 工具** (Typer) - 用于交互式管理
-- **模块化设计** - 核心业务逻辑可复用
-
-## 🏗️ 项目架构
+## 项目架构
 
 ```mermaid
 graph TB
-    subgraph "用户层"
-        A[HTTP Client]
-        B[Terminal User]
+    subgraph 用户层
+        U1[HTTP Client]
+        U2[Terminal User]
     end
 
-    subgraph "接口层"
-        A -->|REST API| C[FastAPI /api/v1]
-        B -->|CLI| D[Typer vmctl]
+    subgraph 接口层
+        U1 -->|REST API| API[FastAPI /api/v1]
+        U2 -->|CLI| CLI[Typer vmctl]
     end
 
-    subgraph "服务层 (共用)"
-        C --> E[VMService]
-        D --> E
-        C --> F[StorageService]
-        D --> F
+    subgraph 服务层
+        API --> SVC[VMService]
+        CLI --> SVC
     end
 
-    subgraph "核心层"
-        E --> G[Hypervisor Manager]
-        F --> G
-        G --> H[XML Generator]
+    subgraph 核心层
+        SVC --> CORE[Hypervisor Manager]
+        CORE --> XML[XML Generator]
     end
 
-    subgraph "底层驱动"
-        G --> I[libvirt-python]
-        I --> J[libvirtd Daemon]
-        J --> K[Qemu/KVM]
+    subgraph 底层驱动
+        XML --> LIB[libvirt-python]
+        LIB --> QEMU[Qemu/KVM]
     end
 ```
 
-## 📋 功能特性
+## 用户流程图
 
-### 虚拟机生命周期管理
-- ✅ 创建/删除虚拟机
-- ✅ 启动/停止/重启虚拟机
-- ✅ 暂停/恢复虚拟机
-- ✅ 虚拟机状态监控
+```mermaid
+flowchart LR
+    subgraph 安装准备
+        A[系统依赖] --> B[Python 3.11+]
+        B --> C[uv 包管理]
+    end
 
-### 资源管理
-- 📁 存储池管理
-- 🌐 虚拟网络管理
-- 💾 磁盘镜像管理
+    subgraph 使用方式
+        D[CLI 命令]
+        E[REST API]
+    end
 
-### 用户体验
-- 🖥️ 美观的 CLI 输出 (Rich)
-- 📚 自动生成 API 文档 (Swagger UI)
-- ⚙️ 配置文件支持
+    subgraph 虚拟机生命周期
+        F[创建 VM] --> G[启动 VM]
+        G --> H[运行中]
+        H --> I[暂停/恢复]
+        H --> J[停止 VM]
+        J --> K[删除 VM]
+    end
+
+    C --> D
+    C --> E
+    D --> F
+    E --> F
+```
 
 ---
 
-## 🚀 快速开始
+## 功能特性
+
+| 功能 | CLI | API |
+|------|:---:|:---:|
+| 创建/删除虚拟机 | ✅ | ✅ |
+| 启动/停止/重启 | ✅ | ✅ |
+| 暂停/恢复 | ✅ | ✅ |
+| 状态监控 | ✅ | ✅ |
+| 存储池管理 | ✅ | ✅ |
+| 网络管理 | ✅ | ✅ |
+| 美观的 Rich 输出 | ✅ | - |
+| Swagger 文档 | - | ✅ |
+
+---
+
+## 快速开始
 
 ### 环境要求
 - **操作系统**: Linux (支持 KVM)
 - **Python**: 3.11+
 - **包管理**: [uv](https://docs.astral.sh/uv/)
 
-### 安装系统依赖 (Ubuntu/Debian)
+### 1. 安装系统依赖
+
 ```bash
-# 安装虚拟化相关软件包
+# Ubuntu/Debian
 sudo apt update
 sudo apt install -y qemu-kvm libvirt-daemon-system libvirt-clients virtinst bridge-utils
 
-# 将当前用户添加到 libvirt 和 kvm 组
-sudo usermod -aG libvirt $USER
-sudo usermod -aG kvm $USER
+# 添加用户到虚拟化组
+sudo usermod -aG libvirt,kvm $USER
+# 重新登录生效
 ```
 
-### 安装项目依赖
-```bash
-# 克隆项目
-git clone https://github.com/yourusername/x-qemu-kvm.git
-cd x-qemu-kvm
+### 2. 安装项目
 
-# 使用 uv 安装依赖
+```bash
+git clone https://github.com/yourusername/tiangong.git
+cd tiangong
 uv sync
+```
 
-# 验证安装
+### 3. 验证安装
+
+```bash
 uv run vmctl --version
+uv run vmctl check
 ```
 
-### CLI 使用示例
+---
+
+## 使用方式
+
+### CLI 工具 (vmctl)
+
 ```bash
-# 列出所有虚拟机
-vmctl vm list
+# 查看帮助
+vmctl --help
+vmctl vm --help
 
-# 查看虚拟机详情
-vmctl vm info <name_or_uuid>
-
-# 创建虚拟机
-vmctl vm create --name test-vm --memory 2048 --vcpu 2 --disk /var/lib/libvirt/images/test.qcow2
-
-# 启动虚拟机
-vmctl vm start test-vm
-
-# 停止虚拟机
-vmctl vm stop test-vm
-
-# 删除虚拟机
-vmctl vm delete test-vm --delete-disk
+# 虚拟机操作
+vmctl vm list                        # 列出所有虚拟机
+vmctl vm info <name>                 # 查看详情
+vmctl vm create --name test-vm \
+    --memory 2048 --vcpu 2 \
+    --disk /var/lib/libvirt/images/test.qcow2
+vmctl vm start test-vm               # 启动
+vmctl vm stop test-vm                # 停止
+vmctl vm delete test-vm --delete-disk  # 删除
 ```
 
-### API 使用示例
+### REST API
+
 ```bash
-# 启动 API 服务
+# 启动服务
 uv run uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000
 
-# 创建虚拟机 (使用 curl)
+# 访问文档
+open http://localhost:8000/docs
+```
+
+```bash
+# 示例：创建虚拟机
 curl -X POST http://localhost:8000/api/v1/vms \
   -H "Content-Type: application/json" \
-  -d '{
-    "name": "test-vm",
-    "memory": 2048,
-    "vcpu": 2,
-    "disk_path": "/var/lib/libvirt/images/test.qcow2"
-  }'
-
-# 查看 API 文档
-# 访问 http://localhost:8000/docs
+  -d '{"name": "test-vm", "memory": 2048, "vcpu": 2,
+       "disk_path": "/var/lib/libvirt/images/test.qcow2"}'
 ```
 
 ---
 
-## 📁 项目结构
+## 配置
 
-```
-x-qemu-kvm/
-├── src/
-│   ├── api/          # FastAPI REST API
-│   │   ├── routers/  # API 路由
-│   │   └── main.py   # FastAPI 应用入口
-│   ├── cli/          # Typer CLI 工具
-│   │   ├── commands/ # CLI 子命令
-│   │   └── main.py   # CLI 入口
-│   ├── services/     # 业务服务层 (API 和 CLI 共用)
-│   │   └── vm_service.py  # VM 管理服务
-│   ├── core/         # 核心模块
-│   │   ├── hypervisor.py  # libvirt 连接管理
-│   │   └── exceptions.py  # 自定义异常
-│   └── models/       # 数据模型
-│       └── vm.py     # 虚拟机数据模型
-├── tests/            # 测试文件
-│   ├── unit/         # 单元测试
-│   ├── integration/  # 集成测试
-│   └── e2e/          # 端到端测试
-├── docs/             # 文档
-├── scripts/          # 辅助脚本
-├── pyproject.toml    # 项目配置 (uv)
-└── README.md         # 项目说明
-```
+### 配置文件
 
----
-
-## 🛠️ 开发指南
-
-### 设置开发环境
-```bash
-# 安装开发依赖
-uv sync --extra dev
-
-# 运行测试
-uv run pytest
-
-# 代码格式化
-uv run black src/ tests/
-uv run ruff check src/ tests/
-
-# 类型检查
-uv run mypy src/
-```
-
-### 添加新功能
-1. 在 `src/models/` 中添加数据模型
-2. 在 `src/services/` 中实现业务逻辑
-3. 在 `src/api/routers/` 中添加 API 端点
-4. 在 `src/cli/commands/` 中添加 CLI 命令
-5. 在 `tests/` 中添加测试用例
-
----
-
-## 🔧 配置说明
-
-### CLI 配置文件
 位置: `~/.vmctl/config.yaml`
+
 ```yaml
 connection:
-  uri: "qemu:///system"  # 或 qemu:///session
+  uri: "qemu:///system"    # 系统级连接
+  # uri: "qemu:///session"  # 用户级连接
 
 vm_defaults:
   memory: 2048
@@ -219,74 +180,60 @@ logging:
 ```
 
 ### 环境变量
-```bash
-# 设置 libvirt 连接 URI
-export LIBVIRT_DEFAULT_URI="qemu:///system"
 
-# 设置日志级别
+```bash
+export LIBVIRT_DEFAULT_URI="qemu:///system"
 export LOG_LEVEL="DEBUG"
 ```
 
 ---
 
-## 📚 学习资源
+## 项目结构
 
-### 虚拟化基础
-- [QEMU 官方文档](https://www.qemu.org/docs/master/)
-- [KVM 官方文档](https://www.linux-kvm.org/page/Documents)
-- [libvirt 官方文档](https://libvirt.org/docs.html)
-
-### 技术栈文档
-- [libvirt Python API](https://libvirt.org/html/libvirt-libvirt.html)
-- [Domain XML 格式](https://libvirt.org/formatdomain.html)
-- [FastAPI 文档](https://fastapi.tiangolo.com/)
-- [Typer 文档](https://typer.tiangolo.com/)
-
-### 命令行参考 (virsh)
-```bash
-virsh list --all                    # 列出所有虚拟机
-virsh dominfo <name>                # 查看虚拟机详情
-virsh dumpxml <name>                # 查看虚拟机 XML 定义
-virsh start/stop/reboot <name>      # 启动/停止/重启虚拟机
-virsh snapshot-create/list/delete   # 快照管理
+```
+tiangong/
+├── src/
+│   ├── api/           # FastAPI REST API
+│   ├── cli/           # Typer CLI 工具
+│   ├── services/      # 业务服务层
+│   ├── core/          # 核心模块 (libvirt 连接管理)
+│   └── models/        # 数据模型
+├── tests/             # 测试文件
+├── config/            # 配置示例
+├── scripts/           # 辅助脚本
+└── pyproject.toml     # 项目配置
 ```
 
 ---
 
-## 🤝 贡献指南
+## 开发指南
 
-欢迎提交 Issue 和 Pull Request！
+```bash
+# 安装开发依赖
+uv sync --extra dev
 
-1. Fork 项目仓库
-2. 创建功能分支 (`git checkout -b feature/amazing-feature`)
-3. 提交更改 (`git commit -m 'Add some amazing feature'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 开启 Pull Request
+# 运行测试
+uv run pytest
 
----
-
-## 📄 许可证
-
-本项目基于 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
+# 代码检查
+uv run ruff check src/ tests/
+uv run mypy src/
+```
 
 ---
 
-## 📞 联系方式
+## 学习资源
 
-- **作者**: 杨壮 (John Young)
-- **邮箱**: john.young@foxmai.com
-- **项目地址**: https://github.com/yourusername/x-qemu-kvm
+- [QEMU 官方文档](https://www.qemu.org/docs/master/)
+- [KVM 官方文档](https://www.linux-kvm.org/page/Documents)
+- [libvirt 官方文档](https://libvirt.org/docs.html)
+- [FastAPI 文档](https://fastapi.tiangolo.com/)
+- [Typer 文档](https://typer.tiangolo.com/)
 
 ---
 
-## 🌟 下一步
+## 许可证
 
-按照以下步骤开始使用：
+MIT License - 详见 [LICENSE](LICENSE)
 
-1. **环境准备**: 配置 Linux 虚拟化环境
-2. **安装依赖**: 使用 uv 安装项目依赖
-3. **启动服务**: 运行 API 服务或使用 CLI
-4. **创建虚拟机**: 通过 API 或 CLI 创建第一个虚拟机
-5. **探索功能**: 尝试不同的生命周期操作
-
-**Happy Virtualization! 🚀**
+**作者**: 杨壮 (John Young) <john.young@foxmai.com>

@@ -45,7 +45,7 @@ async def lifespan(app: FastAPI):
 
 # 创建 FastAPI 应用
 app = FastAPI(
-    title="x-qemu-kvm API",
+    title="天工 (TianGong) API",
     description="基于 Qemu/KVM 的虚拟机生命周期管理 API",
     version="0.1.0",
     contact={
@@ -157,7 +157,7 @@ async def health_check() -> Dict[str, Any]:
     """
     return {
         "status": "healthy",
-        "service": "x-qemu-kvm API",
+        "service": "天工 (TianGong) API",
         "version": app.version,
         "timestamp": "2024-01-01T00:00:00Z",  # 实际应使用当前时间
     }
@@ -171,7 +171,7 @@ async def root() -> Dict[str, Any]:
     返回 API 基本信息
     """
     return {
-        "message": "Welcome to x-qemu-kvm API",
+        "message": "Welcome to 天工 (TianGong) API",
         "version": app.version,
         "docs": "/docs",
         "redoc": "/redoc",

@@ -1,7 +1,7 @@
 """
-示例：如何使用 x-qemu-kvm API
+示例：如何使用 天工 (TianGong) API
 
-这个示例展示了如何通过 Python 代码使用 x-qemu-kvm 的 API。
+这个示例展示了如何通过 Python 代码使用 天工 (TianGong) 的 API。
 """
 
 import sys
@@ -100,7 +100,7 @@ def delete_virtual_machine(vm_id: str, delete_disk: bool = False):
 def main():
     """主函数：演示完整的虚拟机生命周期"""
     print("=" * 60)
-    print("x-qemu-kvm API 使用示例")
+    print("天工 (TianGong) API 使用示例")
     print("=" * 60)
 
     # 步骤1: 列出虚拟机

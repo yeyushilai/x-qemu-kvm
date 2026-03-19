@@ -1,4 +1,4 @@
-# x-qemu-kvm CLI 配置文件示例
+# 天工 (TianGong) CLI 配置文件示例
 # 位置: ~/.vmctl/config.yaml
 
 # 连接配置

@@ -10,47 +10,55 @@
 
 ```mermaid
 graph TB
-    subgraph 用户层
+    subgraph Layer1["用户层"]
         U1[HTTP Client]
         U2[Terminal User]
     end
 
-    subgraph 接口层
-        U1 -->|REST API| API[FastAPI /api/v1]
-        U2 -->|CLI| CLI[Typer vmctl]
+    subgraph Layer2["接口层"]
+        API[FastAPI /api/v1]
+        CMD[Typer vmctl]
     end
 
-    subgraph 服务层
-        API --> SVC[VMService]
-        CLI --> SVC
+    subgraph Layer3["服务层"]
+        SVC[VMService]
     end
 
-    subgraph 核心层
-        SVC --> CORE[Hypervisor Manager]
-        CORE --> XML[XML Generator]
+    subgraph Layer4["核心层"]
+        CORE[Hypervisor Manager]
+        GEN[XML Generator]
     end
 
-    subgraph 底层驱动
-        XML --> LIB[libvirt-python]
-        LIB --> QEMU[Qemu/KVM]
+    subgraph Layer5["底层驱动"]
+        LIB[libvirt-python]
+        KVM[Qemu/KVM]
     end
+
+    U1 -->|REST API| API
+    U2 -->|CLI| CMD
+    API --> SVC
+    CMD --> SVC
+    SVC --> CORE
+    CORE --> GEN
+    GEN --> LIB
+    LIB --> KVM
 ```
 
 ## 用户流程图
 
 ```mermaid
 flowchart LR
-    subgraph 安装准备
+    subgraph Prep["安装准备"]
         A[系统依赖] --> B[Python 3.11+]
         B --> C[uv 包管理]
     end
 
-    subgraph 使用方式
+    subgraph Use["使用方式"]
         D[CLI 命令]
         E[REST API]
     end
 
-    subgraph 虚拟机生命周期
+    subgraph LifeCycle["虚拟机生命周期"]
         F[创建 VM] --> G[启动 VM]
         G --> H[运行中]
         H --> I[暂停/恢复]

@@ -1,6 +1,6 @@
 # x-qemu-kvm
 
-基于 Qemu/KVM 的虚拟机生命周期管理学习与实践项目
+`x-qemu-kvm` 是一个基于 Qemu/KVM 的虚拟机生命周期管理学习与实践项目
 
 **作者**: 杨壮 (John Young) <john.young@foxmai.com>
 **许可证**: MIT
